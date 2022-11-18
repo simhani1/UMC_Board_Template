@@ -50,6 +50,18 @@ public class UserProvider {
             throw new BaseException(FAILED_TO_LOGIN);
         }
     }
+
+    /**
+     * 탈퇴여부 검사
+     * POST
+     * */
+
+    // 탈퇴한 유저인지 확인
+    public PostCheckStatus checkStatus(PostLoginReq postLoginReq) throws BaseException {
+        String userId = postLoginReq.getId();
+        PostCheckStatus postCheckStatus = userDao.checkStatus(userId);
+        return postCheckStatus;
+    }
 //
 //    // 해당 이메일이 이미 User Table에 존재하는지 확인
 //    public int checkEmail(String email) throws BaseException {

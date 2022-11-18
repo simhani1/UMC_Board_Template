@@ -56,6 +56,9 @@ public class UserController {
     @PostMapping("/log-in")
     public BaseResponse<PostLoginRes> login(@RequestBody PostLoginReq postLoginReq) {
         try{
+            PostCheckStatus postCheckStatus = userProvider.checkStatus(postLoginReq);
+            if(!postCheckStatus.isStatus())
+                return new BaseResponse<>(DELETED_USER);
             PostLoginRes postLoginRes = userProvider.login(postLoginReq);
             return new BaseResponse<>(postLoginRes);
         } catch (BaseException e) {

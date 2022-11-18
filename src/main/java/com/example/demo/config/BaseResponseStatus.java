@@ -23,6 +23,7 @@ public enum BaseResponseStatus {
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
+    DELETED_USER(false, 2011, "탈퇴한 회원입니다."),
 
     /**
      * 3000 : Response 오류

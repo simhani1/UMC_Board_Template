@@ -63,4 +63,22 @@ public class UserDao {
                 ),
                 getNicknameParams);
     }
+
+    /**
+     * 탈퇴여부 확인
+     * POST
+     * */
+
+    // 탈퇴한 유저인지 확인
+    public PostCheckStatus checkStatus(String userId) {
+        String checkStatusQuery = "select status\n" +
+                "from umc_board.User\n" +
+                "where id = ?";
+        String checkStatusParams = userId;
+        return jdbcTemplate.queryForObject(checkStatusQuery,
+                (rs, rowNum) -> new PostCheckStatus(
+                        rs.getBoolean("status")
+                ),
+                checkStatusParams);
+    }
 }
