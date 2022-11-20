@@ -12,10 +12,15 @@ import lombok.*;
  */
 public class User {
     private int userId;
-    private String pwd;
     private String nickname;
+    private String pwd;
+    public User(int userId, String pwd) {
+        this.userId = userId;
+        this.pwd = pwd;
+    }
 
-    public User(String pwd) {
+    public User(String nickname, String pwd) {
+        this.nickname = nickname;
         this.pwd = pwd;
     }
 }

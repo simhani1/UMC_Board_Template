@@ -41,35 +41,20 @@ public class UserDao {
 //    }
 
     public User getPwd(PostLoginReq postLoginReq) {
-        String getPwdQuery="select pwd from User where id = ? and pwd = ?";
-        Object[] getPwdParams = new Object[]{postLoginReq.getId(), postLoginReq.getPwd()};
+        String getPwdQuery="select userId, pwd from User where id = ?";
+        String getPwdParams = postLoginReq.getId();
         return this.jdbcTemplate.queryForObject(getPwdQuery,
                 (rs, rowNum) -> new User(
+                        rs.getInt("userId"),
                         rs.getString("pwd")
                 ),
                 getPwdParams);
     }
 
     /**
-     * 로그인
-     * POST
-     */
-    public PostLoginRes getNickname(PostLoginReq postLoginReq) {
-        String getNicknameQuery="select nickname from User where id = ? and pwd = ?";
-        Object[] getNicknameParams = new Object[]{postLoginReq.getId(), postLoginReq.getPwd()};
-        return this.jdbcTemplate.queryForObject(getNicknameQuery,
-                (rs, rowNum) -> new PostLoginRes(
-                        rs.getString("nickname")
-                ),
-                getNicknameParams);
-    }
-
-    /**
      * 탈퇴여부 확인
      * POST
      * */
-
-    // 탈퇴한 유저인지 확인
     public PostCheckStatus checkStatus(String userId) {
         String checkStatusQuery = "select status\n" +
                 "from umc_board.User\n" +
@@ -80,5 +65,15 @@ public class UserDao {
                         rs.getBoolean("status")
                 ),
                 checkStatusParams);
+    }
+
+    /**
+     * 닉네임 변경
+     * PATCH
+     * */
+    public int modifyUserName(int userId, PatchUserReq patchUserReq) {
+        String modifyUserNameQuery = "update umc_board.User set nickname = ? where userId = ? ";
+        Object[] modifyUserNameParams = new Object[]{patchUserReq.getNickname(), userId};
+        return this.jdbcTemplate.update(modifyUserNameQuery, modifyUserNameParams);
     }
 }

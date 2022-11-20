@@ -10,23 +10,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.jdbc.core.JdbcTemplate;
-import javax.sql.DataSource;
 import static com.example.demo.config.BaseResponseStatus.*;
 
 @Service
 public class UserService {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
-    // *********************** 동작에 있어 필요한 요소들을 불러옵니다. *************************
     private final UserDao userDao;
     private final UserProvider userProvider;
-    private final JwtService jwtService; // JWT부분은 7주차에 다루므로 모르셔도 됩니다!
+    private final JwtService jwtService;
 
     @Autowired //readme 참고
     public UserService(UserDao userDao, UserProvider userProvider, JwtService jwtService) {
         this.userDao = userDao;
         this.userProvider = userProvider;
-        this.jwtService = jwtService; // JWT부분은 7주차에 다루므로 모르셔도 됩니다!
+        this.jwtService = jwtService;
 
     }
 
@@ -37,8 +34,6 @@ public class UserService {
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
         String pwd;
         try {
-            // 암호화: postUserReq에서 제공받은 비밀번호를 보안을 위해 암호화시켜 DB에 저장합니다.
-            // ex) password123 -> dfhsjfkjdsnj4@!$!@chdsnjfwkenjfnsjfnjsd.fdsfaifsadjfjaf
             pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(postUserReq.getPwd()); // 암호화코드
             postUserReq.setPwd(pwd);
         } catch (Exception ignored) { // 암호화가 실패하였을 경우 에러 발생
@@ -46,14 +41,24 @@ public class UserService {
         }
         try {
             int userId = userDao.createUser(postUserReq);
-            return new PostUserRes(userId);
+            String jwt = jwtService.createJwt(userId);
+            return new PostUserRes(jwt, userId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
-//  *********** 해당 부분은 7주차 수업 후 주석해제하서 대체해서 사용해주세요! ***********
-//            //jwt 발급.
-//            String jwt = jwtService.createJwt(userIdx);
-//            return new PostUserRes(jwt,userIdx);
-//  *********************************************************************
-        } catch (Exception exception) { // DB에 이상이 있는 경우 에러 메시지를 보냅니다.
+    /**
+     * 닉네임 수정
+     * PATCH
+     * */
+    public void modifyUserName(int userId, PatchUserReq patchUserReq) throws BaseException {
+        try {
+            int result = userDao.modifyUserName(userId, patchUserReq);
+            if (result == 0) {
+                throw new BaseException(MODIFY_FAIL_USERNAME);
+            }
+        } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }
